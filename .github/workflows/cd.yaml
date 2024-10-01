@@ -45,7 +45,6 @@ jobs:
 
   deploy-preview:
     runs-on: ubuntu-latest
-    needs: comment-approval
     steps:
       - name: Deploy Preview
         uses: peter-evans/create-or-update-comment@v1
