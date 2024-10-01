@@ -1,8 +1,8 @@
 name: CD Pipeline
 
 on:
-  pull_request:
-  issue_comment: 
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
