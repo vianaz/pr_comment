@@ -43,7 +43,6 @@ jobs:
 
   deploy-preview:
     runs-on: ubuntu-latest
-    if: contains(github.event.comment.body, ':rocket:')
     steps:
       - name: Deploy Preview
         uses: peter-evans/create-or-update-comment@v1
