@@ -31,11 +31,17 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr_sha = context.payload.issue.pull_request.head.sha
-            github.repos.createCommitStatus({
+            const prNumber = context.issue.number;
+            const { data: pullRequest } = await github.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: pr_sha,
+              pull_number: prNumber
+            });
+            const prSha = pullRequest.head.sha;
+            await github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: prSha,
               state: 'pending',
               context: 'Deploy Preview',
               description: 'Deployment in progress...'
@@ -60,12 +66,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr_sha = context.payload.issue.pull_request.head.sha
-            github.repos.createCommitStatus({
+            const prNumber = context.issue.number;
+            const { data: pullRequest } = await github.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: pr_sha,
+              pull_number: prNumber
+            });
+            const prSha = pullRequest.head.sha;
+            await github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: prSha,
               state: 'success',
               context: 'Deploy Preview',
-              description: 'Deployment complete'
+              description: 'Deployment in progress...'
             })
