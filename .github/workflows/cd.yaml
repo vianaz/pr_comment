@@ -69,10 +69,6 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.export-pr-sha.outputs.pr_sha}}
           
-      - uses: thollander/actions-comment-pull-request@v2
-        with:
-          mode: delete
-          comment_tag: deploy
 
       - uses: myrotvorets/set-commit-status-action@master
         with:
