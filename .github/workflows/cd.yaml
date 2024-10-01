@@ -66,13 +66,13 @@ jobs:
 
             See the [action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-      # - uses: thollander/actions-comment-pull-request@v2
-      #   with:
-      #     mode: recreate
-      #     pr_number: ${{ github.event.issue.number }}
-      #     comment_tag: deploy
-      #     message: |
-      #       ### :rocket: Deploying Preview :rocket:
+      - run: sleep 30s
 
-      #       **Deployment completed**. You can now view the deployed preview at [https://my-preview-url.com](https://my-preview-url.com).
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          pr_number: ${{ github.event.issue.number }}
+          message: |
+            ### :rocket: Deploying Preview :rocket:
+
+            **Deployment completed**. You can now view the deployed preview at [https://my-preview-url.com](https://my-preview-url.com).
 
