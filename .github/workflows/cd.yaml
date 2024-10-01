@@ -3,7 +3,6 @@ name: CD Pipeline
 on:
   pull_request:
   issue_comment: 
-    types: [created, edited]
 
 permissions:
   contents: read
