@@ -56,16 +56,10 @@ jobs:
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
           
-      - uses: myrotvorets/set-commit-status-action@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sha: ${{ github.sha }}
-          status: pending
-          context: Publish NPM package
-
       - uses: thollander/actions-comment-pull-request@v2
         with:
-          mode: recreate
+          mode: upsert
+          pr_number: ${{ github.event.issue.number }}
           comment_tag: deploy
           message: |
             ### :rocket: Deploying Preview :rocket:
@@ -74,17 +68,10 @@ jobs:
 
             See the [action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-      - uses: myrotvorets/set-commit-status-action@master
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sha: ${{ github.sha }}
-          status: success
-          context: Publish NPM package
-
-
       - uses: thollander/actions-comment-pull-request@v2
         with:
           mode: recreate
+          pr_number: ${{ github.event.issue.number }}
           comment_tag: deploy
           message: |
             ### :rocket: Deploying Preview :rocket:
