@@ -51,6 +51,7 @@ jobs:
     if: ${{ github.event_name == 'issue_comment' && contains(github.event.comment.body, 'deploy') }}
     steps:
       - name: Checkout pull request 🏁
+        id: checkout
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
@@ -58,6 +59,7 @@ jobs:
       - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.sha }}
           status: pending
           context: Publish NPM package
 
