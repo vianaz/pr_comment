@@ -29,7 +29,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const lastCommit 
             github.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
