@@ -60,7 +60,6 @@ jobs:
           PR_NUMBER: ${{ github.event.issue.number }}
 
   deploy-preview:
-    if: ${{ contains(github.event.comment.body, 'rocket') && github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     needs: export-pr-sha
     steps:
