@@ -69,12 +69,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.export-pr-sha.outputs.pr_sha}}
           
-
       - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
           context: Publish NPM package
+          sha: ${{ needs.export-pr-sha.outputs.pr_sha }}
 
       - uses: thollander/actions-comment-pull-request@v2
         with:
@@ -85,12 +85,12 @@ jobs:
 
             **Deployment in progress**. Please wait for the deployment to complete.
 
-
       - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: success
           context: Publish NPM package
+          sha: ${{ needs.export-pr-sha.outputs.pr_sha }}
 
       - uses: thollander/actions-comment-pull-request@v2
         with:
