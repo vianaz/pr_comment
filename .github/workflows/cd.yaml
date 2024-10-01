@@ -1,6 +1,8 @@
 name: CI Pipeline
 
 on:
+  pull_request:
+    types: [opened, synchronize]
   issue_comment:
     types: [created]
 
@@ -12,53 +14,94 @@ permissions:
   statuses: write
 
 jobs:
-  deploy-preview:
-    if: ${{ contains(github.event.comment.body, 'rocket') && github.event.issue.pull_request }}
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Github API Request
-        id: request
-        uses: octokit/request-action@v2.0.0
-        with:
-          route: ${{ github.event.issue.pull_request.url }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "Linting code"
 
-      - name: Get PR HEAD Ref
-        id: getRef
-        run: echo "pr_ref=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json headRefName | jq -r '.headRefName')" >> $GITHUB_OUTPUT
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - run: echo "Building code"
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - run: echo "Testing code"
+      
+  comment-approval:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Comment on Issue
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: |
+            ### :green_circle: Deploy Preview :green_circle:
+
+            **Ready for deployment**: Comment with "deploy" to start deployment.
+
+  export-pr-sha:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'issue_comment' && contains(github.event.comment.body, 'deploy') }}
+    outputs:
+      pr_sha: ${{ steps.export_sha.outputs.pr_sha }}
+    steps:
+      - name: Export PR SHA
+        id: export_sha
+        run: echo "pr_sha=$(gh pr view $PR_NUMBER --repo ${{ github.repository }} --json headSha | jq -r '.headSha')" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.issue.number }}
-  
+
+  deploy-preview:
+    if: ${{ contains(github.event.comment.body, 'rocket') && github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    needs: export-pr-sha
+    steps:
       - name: Checkout source code from Github
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ steps.getRef.outputs.pr_ref }}
+          ref: ${{ needs.export-pr-sha.outputs.pr_sha}}
+          
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          mode: delete
+          comment_tag: deploy
 
-      - name: Starting Deployment
-        uses: peter-evans/create-or-update-comment@v1
+      - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          comment-id: ${{ github.event.comment.id }}
-          body: |
-            ### :rocket: Deployed Preview :rocket:
+          status: pending
+          context: Publish NPM package
 
-            Deployment in progress...
-          edit-mode: replace
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          mode: create
+          comment_tag: deploy
+          message: |
+            ### :rocket: Deploying Preview :rocket:
+
+            **Deployment in progress**. Please wait for the deployment to complete.
 
 
-      - name: Deploy Preview
-        run: echo "Deploying preview"
-
-      - name: Update comment
-        uses: peter-evans/create-or-update-comment@v1
+      - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          comment-id: ${{ github.event.comment.id }}
-          body: |
-            ### :rocket: Deployed Preview :rocket:
+          status: success
+          context: Publish NPM package
 
-            **Deployment complete**. [View deployment](https://example.com)
-          edit-mode: replace
+      - uses: thollander/actions-comment-pull-request@v2
+        with:
+          mode: recreate
+          comment_tag: deploy
+          message: |
+            ### :rocket: Deploying Preview :rocket:
+
+            **Deployment completed**. You can now view the deployed preview at [https://my-preview-url.com](https://my-preview-url.com).
+
