@@ -31,11 +31,41 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const pr_sha = context.payload.issue.pull_request.head.sha
             github.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              sha: "2ae3ac9daa7ba5150775e20a6daef1e21cadb8fb",
+              sha: pr_sha,
               state: 'pending',
               context: 'Deploy Preview',
               description: 'Deployment in progress...'
+            })
+
+      - name: Deploy Preview
+        run: echo "Deploying preview"
+
+      - name: Update comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            ### :rocket: Deployed Preview :rocket:
+
+            **Deployment complete**. [View deployment](https://example.com)
+          edit-mode: replace
+
+      - name: Add commit status
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr_sha = context.payload.issue.pull_request.head.sha
+            github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: pr_sha,
+              state: 'success',
+              context: 'Deploy Preview',
+              description: 'Deployment complete'
             })
