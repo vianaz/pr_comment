@@ -11,6 +11,9 @@ permissions:
   checks: write
   statuses: write
 
+
+  ### TESTE
+
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
