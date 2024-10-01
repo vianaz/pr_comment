@@ -71,6 +71,8 @@ jobs:
 
             **Deployment in progress**. Please wait for the deployment to complete.
 
+            See the [action](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
       - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
