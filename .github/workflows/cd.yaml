@@ -58,9 +58,8 @@ jobs:
           
       - uses: thollander/actions-comment-pull-request@v2
         with:
-          mode: upsert
+          mode: recreate
           pr_number: ${{ github.event.issue.number }}
-          comment_tag: deploy
           message: |
             ### :rocket: Deploying Preview :rocket:
 
