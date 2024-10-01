@@ -15,7 +15,20 @@ permissions:
   ### TESTE
 
 jobs:
+  comment-rocket:
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.comment.body, 'rocket') }}
+    steps:
+      - run: echo "Commnet Rocket"
+
+  react-rocket:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.comment.reactions.rocket > 0 }}
+    steps:
+      - run: echo "React Rocket"
+
   deploy-preview:
+    if: ${{ contains(github.event.comment.body, 'deploy') && github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
       - name: Starting Deployment
@@ -28,6 +41,7 @@ jobs:
 
             Deployment in progress...
           edit-mode: replace
+
 
       - name: Add commit status
         uses: actions/github-script@v3
