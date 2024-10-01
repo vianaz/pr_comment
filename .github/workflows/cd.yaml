@@ -18,16 +18,25 @@ jobs:
     steps:
       - run: echo "Commnet Rocket"
 
-  react-rocket:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.comment.reactions.rocket > 0 }}
-    steps:
-      - run: echo "React Rocket"
-
   deploy-preview:
-    if: ${{ contains(github.event.comment.body, 'deploy') && github.event.issue.pull_request }}
+    if: ${{ contains(github.event.comment.body, 'rocket') && github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
+      - name: Github API Request
+        id: request
+        uses: octokit/request-action@v2.0.0
+        with:
+          route: ${{ github.event.issue.pull_request.url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout PR Branch
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ fromJson(steps.request.outputs.data).head.repo.full_name }}
+          ref: ${{ fromJson(steps.request.outputs.data).head.ref }}
+
       - name: Starting Deployment
         uses: peter-evans/create-or-update-comment@v1
         with:
@@ -39,27 +48,6 @@ jobs:
             Deployment in progress...
           edit-mode: replace
 
-
-      - name: Add commit status
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = context.issue.number;
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            const prSha = pullRequest.head.sha;
-            await github.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: prSha,
-              state: 'pending',
-              context: 'Deploy Preview',
-              description: 'Deployment in progress...'
-            })
 
       - name: Deploy Preview
         run: echo "Deploying preview"
@@ -74,24 +62,3 @@ jobs:
 
             **Deployment complete**. [View deployment](https://example.com)
           edit-mode: replace
-
-      - name: Add commit status
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = context.issue.number;
-            const { data: pullRequest } = await github.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber
-            });
-            const prSha = pullRequest.head.sha;
-            await github.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: prSha,
-              state: 'success',
-              context: 'Deploy Preview',
-              description: 'Deployment in progress...'
-            })
