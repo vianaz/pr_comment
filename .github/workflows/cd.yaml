@@ -75,8 +75,10 @@ jobs:
       - uses: myrotvorets/set-commit-status-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.sha }}
           status: success
           context: Publish NPM package
+
 
       - uses: thollander/actions-comment-pull-request@v2
         with:
