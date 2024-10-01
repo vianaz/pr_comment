@@ -40,3 +40,18 @@ jobs:
             ### :green_circle: Deploy Preview :green_circle:
 
             **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
+
+  deploy-preview:
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, ':rocket:')
+    steps:
+      - name: Deploy Preview
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            ### :rocket: Deployed Preview :rocket:
+
+            **Preview URL**: [https://example.com](https://example.com)
+          edit-mode: replace
