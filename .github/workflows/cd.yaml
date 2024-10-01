@@ -1,42 +1,41 @@
-name: CD Pipeline
+name: CI Pipeline
 
 on:
-  pull_request:
-  issue_comment: 
+  issue_comment:
     types: [created]
 
 permissions:
   contents: read
   pull-requests: write
   issues: write
+  checks: write
+  statuses: write
 
 jobs:
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: echo "Linting code"
-
-  # build:
-  #   runs-on: ubuntu-latest
-  #   needs: lint
-  #   steps:
-  #     - run: echo "Building code"
-
-  test:
+  deploy-preview:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Testing code"
-      
-  comment-approval:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Comment on Issue
+      - name: Starting Deployment
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ github.event.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          comment-id: ${{ github.event.comment.id }}
           body: |
-            ### :green_circle: Deploy Preview :green_circle:
+            ### :rocket: Deployed Preview :rocket:
 
-            **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
+            Deployment in progress...
+          edit-mode: replace
+
+      - name: Add commit status
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "2ae3ac9daa7ba5150775e20a6daef1e21cadb8fb",
+              state: 'pending',
+              context: 'Deploy Preview',
+              description: 'Deployment in progress...'
+            })
