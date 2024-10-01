@@ -65,7 +65,6 @@ jobs:
 
       - uses: thollander/actions-comment-pull-request@v2
         with:
-          mode: create
           comment_tag: deploy
           message: |
             ### :rocket: Deploying Preview :rocket:
