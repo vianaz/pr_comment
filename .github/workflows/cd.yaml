@@ -1,0 +1,38 @@
+name: CD Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment: 
+    types: [created]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Linting code"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - run: echo "Building code"
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - run: echo "Testing code"
+      
+  comment-approval:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Comment on Issue
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            ### :green_circle: Deploy Preview :green_circle:
+
+            **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
